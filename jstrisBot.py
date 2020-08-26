@@ -6,6 +6,39 @@ diff = [0 for _ in range(9)]
 wait = False
 c_pressed = False
 
+def bestLine(moves):
+	best_diff_sum = 200
+	best_move = -1
+	rot = -1
+	
+	# 0 rotations
+	for move in moves[0]:
+		diff_sum = 0
+		temp_top = top.copy()
+		temp_top[move] += 1
+		temp_top[move+1] += 1
+		temp_top[move+2] += 1
+		temp_top[move+3] += 1
+		for i in range(9):
+			diff_sum += abs(temp_top[i+1] - temp_top[i])
+		if abs(diff_sum) < best_diff_sum:
+			best_diff_sum = abs(diff_sum)
+			best_move = move
+			rot = 0
+	# 1 rotation
+	for move in moves[1]:
+		diff_sum = 0
+		temp_top = top.copy()
+		temp_top[move] += 4
+		for i in range(9):
+			diff_sum += abs(temp_top[i+1] - temp_top[i])
+		if abs(diff_sum) < best_diff_sum:
+			best_diff_sum = abs(diff_sum)
+			best_move = move
+			rot = 1
+	
+	return best_move, rot
+
 # Move format => moves<# rotations> = {column index : (left diff, right diff), ... }
 def placeLine():
 
@@ -40,6 +73,7 @@ def placeLine():
 			return
 		else:
 			print('Unlucky, all moves create holes')
+			# TODO: Continue, make a hole keep track of holes in a list?
 			exit(1)
 
 	moves_no_3 = []
@@ -50,113 +84,76 @@ def placeLine():
 			if abs(diffs[0]) < 3 and abs(diffs[1]) < 3:
 				temp.append(pos)
 		moves_no_3.append(temp)
-	
-	if len(moves_no_3[0]) == 0 and len(moves_no_3[1]) == 0: # no moves < 3
-
-		# 0 rotations
-		moves0 = []
-		for i in moves_no_3[0]: # get moves that can reduce >=3 walls
-			if i == 0:
-				if diff[3] >= 3:
-					moves0.append(i)
-				break
-			if i == 6:
-				if diff[5] <= -3:
-					moves0.append(i)
-				break
-			if diff[i + 3] >= 3 or diff[i - 1] <= -3:
-				moves0.append(i)
-
-		# 1 rotation
-		moves1 = []
-		for i in moves_no_3[1]:
-			if i == 0:
-				if diff[0] >= 3:
-					moves1.append(i)
-				break
-			if i == 9:
-				if diff[8] <= -3:
-					moves1.append(i)
-				break
-			if diff[i] >= 3 or diff[i - 1] <= -3:
-				moves1.append(i)
-		
-		moves_reducing = [moves0, moves1]
-		
-		if len(moves0) == 0 and len(moves1) == 0: # no >= 3 walls that can be reduced, choose the move that results in top being closest to 0
-			pass
-		else: # choose wall reduction that doesnt create another wall >= 3
-			pass
-	else: # choose the move that results in top being closest to 0
-		pass # moves_best has at least 1 move
 
 	# 0 rotations
-	if top[0] == top[1] == top[2] == top[3] and abs(top[3] + 1 - top[4]) < 3:
-		top[0] += 1
-		top[1] += 1
-		top[2] += 1
-		top[3] += 1
-
-		pyautogui.press('left', presses=3)
-		pyautogui.press('space')
-		return
-	
-	for i in range(1, 6):
-		if top[i] == top[i+1] == top[i+2] == top[i+3] and abs(top[i] + 1 - top[i-1]) < 3 and abs(top[i+3] + 1 - top[i+4]) < 3:
-			top[i] += 1
-			top[i+1] += 1
-			top[i+2] += 1
-			top[i+3] += 1
-
-			if i < 3:
-				pyautogui.press('left', presses=3-i)
-			elif i > 3:
-				pyautogui.press('right', presses=i-3)
-			pyautogui.press('space')
-			return
-
-	if top[6] == top[7] == top[8] == top[9] and abs(top[6] + 1 - top[5]) < 3:
-		top[6] += 1
-		top[7] += 1
-		top[8] += 1
-		top[9] += 1
-
-		pyautogui.press('right', presses=3)
-		pyautogui.press('space')
-		return
+	moves0 = []
+	for i in moves_no_3[0]: # get moves that can reduce >=3 walls
+		if i == 0:
+			if diff[3] >= 3:
+				moves0.append(i)
+			break
+		if i == 6:
+			if diff[5] <= -3:
+				moves0.append(i)
+			break
+		if diff[i + 3] >= 3 or diff[i - 1] <= -3:
+			moves0.append(i)
 
 	# 1 rotation
-	if abs(top[0] + 4 - top[1]) < 3:
-		top[0] += 4
+	moves1 = []
+	for i in moves_no_3[1]:
+		if i == 0:
+			if diff[0] >= 3:
+				moves1.append(i)
+			break
+		if i == 9:
+			if diff[8] <= -3:
+				moves1.append(i)
+			break
+		if diff[i] >= 3 or diff[i - 1] <= -3:
+			moves1.append(i)
+	
+	moves_reducing = [moves0, moves1]
+	
+	if len(moves_no_3[0]) == 0 and len(moves_no_3[1]) == 0: # no moves create < 3 walls
+		if len(moves0) == 0 and len(moves1) == 0: # no walls can be reduced, choose the move that results in sum of diffs being closest to 0
+			best_move, rot = bestLine(moves_no_holes)
+		else: # choose wall reduction that reults in sum of diffs being closest to 0
+			best_move, rot = bestLine(moves_reducing)
+	else: # at least 1 move in moves_no_3
+		if len(moves0) == 0 and len(moves1) == 0: # no walls can be reduced, choose the move that results in sum of diffs being closest to 0
+			best_move, rot = bestLine(moves_no_3)
+		else: # at least 1 move can reduce walls
+			best_move, rot = bestLine(moves_reducing)
+	
+	print("Moves No Holes:", moves_no_holes)
+	print("Moves No 3:", moves_no_3)
+	print("Moves Reducing:", moves_reducing)
+	print("Best Move:", best_move, "Rotations:", rot)
+	
+	# 0 rotations
+	if rot == 0:
+		top[best_move] += 1
+		top[best_move+1] += 1
+		top[best_move+2] += 1
+		top[best_move+3] += 1
+
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
+
+	else: # 1 rotation
+		top[best_move] += 4
 
 		pyautogui.press('up')
-		pyautogui.press('left', presses=5)
+		if best_move < 5:
+			pyautogui.press('left', presses=5-best_move)
+		elif best_move > 5:
+			pyautogui.press('right', presses=best_move-5)
 		pyautogui.press('space')
-		return
-	
-	for i in range(1, 9):
-		if abs(top[i] + 4 - top[i-1]) < 3 and abs(top[i] + 4 - top[i+1]) < 3:
-			top[i] += 4
-
-			pyautogui.press('up')
-
-			if i < 5:
-				pyautogui.press('left', presses=5-i)
-			elif i > 5:
-				pyautogui.press('right', presses=i-5)
-
-			pyautogui.press('space')
-			return
-	
-	if abs(top[9] + 4 - top[8]) < 3:
-		top[9] += 4
-
-		pyautogui.press('up')
-		pyautogui.press('right', presses=4)
-		pyautogui.press('space')
-		return
-
-	pyautogui.press('c')
+	return
 
 def placeSquare():
 
@@ -657,21 +654,26 @@ def update(piece_color):
 
 	wait = True
 	
-	print('Placing', piece_color)
-
 	if piece_color == 155:
+		print('Placing Line')
 		placeLine()
 	elif piece_color == 159:
+		print('Placing Square')
 		placeSquare()
 	elif piece_color == 65:
+		print('Placing Blue L')
 		placeBlueL()
 	elif piece_color == 91:
+		print('Placing Orange L')
 		placeOrangeL()
 	elif piece_color == 41:
+		print('Placing T')
 		placeT()
 	elif piece_color == 177:
+		print('Placing Green Z')
 		placeGreenZ()
 	elif piece_color == 15:
+		print('Placing Red Z')
 		placeRedZ()
 
 	print(top)
@@ -690,28 +692,28 @@ def update(piece_color):
 	wait = False
 
 def on_press(key):
-
+	
 	if key == Key.space or key == Key.down or repr(key) == "'c'":
 		if repr(key) == "'c'":
 			c_pressed = True
 		else:
 			c_pressed = False
 		
-		piece_color = piece_color = pyautogui.pixel(624, 232)[1]
-		while piece_color == 0:
+		piece_color = pyautogui.pixel(624, 232)[1]
+		while piece_color == 0 and wait:
 			piece_color = pyautogui.pixel(624, 232)[1]
-
+		
 		update(piece_color)
 
 if __name__ == '__main__':
-
+	
 	# Disable failsafe (move mouse to bottom right corner to terminate script)
 	pyautogui.FAILSAFE = False
-
+	
 	# Listen for key presses
 	listener = Listener(on_press=on_press)
 	listener.start()
-
+	
 	try:
 		# Wait for GO! message to appear
 		go_color = 0
@@ -723,10 +725,16 @@ if __name__ == '__main__':
 		while first_piece_color == 0:
 			first_piece_color = pyautogui.pixel(624, 232)[1]
 		update(first_piece_color)
-
+		
+		# Listen for key presses
+		# listener = Listener(on_press=on_press)
+		# listener.start()
+		
+		# on_press(Key.space)
+		
 		# Keep the code alive and listening for space presses.
 		while True:
 			pass
-
+	
 	except KeyboardInterrupt: # If Ctrl-C input
 		exit('Terminating')
