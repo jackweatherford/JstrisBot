@@ -60,7 +60,21 @@ def bestMove(moves, increase):
 	
 	return best_move, rot
 
-# Move format => moves<# rotations> = {column index : (left diff, right diff), ... }
+def reduceMoves(moves, width):
+	reduced = []
+	for i in moves: # Get moves that can reduce >=3 walls
+		if i == 0:
+			if diff[width - 1] >= 3:
+				reduced.append(i)
+			break
+		if i == 10 - width:
+			if diff[10 - width - 1] <= -3:
+				reduced.append(i)
+			break
+		if diff[i + width - 1] >= 3 or diff[i - 1] <= -3:
+			reduced.append(i)
+	return reduced
+
 def placeLine():
 	# 0 rotations
 	moves0 = {}
@@ -90,32 +104,10 @@ def placeLine():
 		return
 	
 	# 0 rotations
-	moves0 = []
-	for i in moves_no_3[0]: # get moves that can reduce >=3 walls
-		if i == 0:
-			if diff[3] >= 3:
-				moves0.append(i)
-			break
-		if i == 6:
-			if diff[5] <= -3:
-				moves0.append(i)
-			break
-		if diff[i + 3] >= 3 or diff[i - 1] <= -3:
-			moves0.append(i)
+	moves0 = reduceMoves(moves_no_3[0], 4)
 	
 	# 1 rotation
-	moves1 = []
-	for i in moves_no_3[1]:
-		if i == 0:
-			if diff[0] >= 3:
-				moves1.append(i)
-			break
-		if i == 9:
-			if diff[8] <= -3:
-				moves1.append(i)
-			break
-		if diff[i] >= 3 or diff[i - 1] <= -3:
-			moves1.append(i)
+	moves1 = reduceMoves(moves_no_3[1], 1)
 	
 	moves_reducing = [moves0, moves1]
 	
@@ -176,18 +168,7 @@ def placeSquare():
 		return
 	
 	# 0 rotations
-	moves0 = []
-	for i in moves_no_3[0]: # get moves that can reduce >=3 walls
-		if i == 0:
-			if diff[1] >= 3:
-				moves0.append(i)
-			break
-		if i == 8:
-			if diff[7] <= -3:
-				moves0.append(i)
-			break
-		if diff[i + 1] >= 3 or diff[i - 1] <= -3:
-			moves0.append(i)
+	moves0 = reduceMoves(moves_no_3[0], 2)
 	
 	moves_reducing = [moves0]
 	
@@ -213,324 +194,380 @@ def placeSquare():
 	pyautogui.press('space')
 
 def placeBlueL():
-
 	# 0 rotations
-	if top[0] == top[1] == top[2] and abs(top[2] + 1 - top[3]) < 3:
-		top[0] += 2
-		top[1] += 1
-		top[2] += 1
-		
-		pyautogui.press('left', presses=3)
-		pyautogui.press('space')
-		return
-
-	for i in range(1, 7):
-		if top[i] == top[i+1] == top[i+2] and abs(top[i] + 2 - top[i-1]) < 3 and abs(top[i+2] + 1 - top[i+3]) < 3:
-			if i < 3:
-				pyautogui.press('left', presses=3-i)
-			elif i > 3:
-				pyautogui.press('right', presses=i-3)
-
-			top[i] += 2
-			top[i+1] += 1
-			top[i+2] += 1
-
-			pyautogui.press('space')
-			return
-
-	if top[7] == top[8] == top[9] and abs(top[7] + 2 - top[6]) < 3:
-		top[7] += 2
-		top[8] += 1
-		top[9] += 1
-		
-		pyautogui.press('right', presses=4)
-		pyautogui.press('space')
-		return
-
-	# 1 rotation
-	if top[0] + 2 == top[1] and abs(top[1] + 1 - top[2]) < 3:
-		top[0] += 3
-		top[1] += 1
-		
-		pyautogui.press('up')
-		pyautogui.press('left', presses=4)
-		pyautogui.press('space')
-		return
-
-	for i in range(1, 8):
-		if top[i] + 2 == top[i+1] and abs(top[i] + 3 - top[i-1]) < 3 and abs(top[i+1] + 1 - top[i+2]) < 3:
-
-			top[i] += 3
-			top[i+1] += 1
-
-			pyautogui.press('up')
-
-			if i < 4:
-				pyautogui.press('left', presses=4-i)
-			elif i > 4:
-				pyautogui.press('right', presses=i-4)
-			
-			pyautogui.press('space')
-			return
-
-	if top[8] + 2 == top[9] and abs(top[8] + 3 - top[7]) < 3:
-		top[8] += 3
-		top[9] += 1
-		
-		pyautogui.press('up')
-		pyautogui.press('right', presses=4)
-		pyautogui.press('space')
-		return
-
-	# 2 rotations
-	if top[0] == top[1] == top[2] + 1 and abs(top[2] + 2 - top[3]) < 3:
-		top[0] += 1
-		top[1] += 1
-		top[2] += 2
-		
-		pyautogui.press('up', presses=2)
-		pyautogui.press('left', presses=3)
-		pyautogui.press('space')
-		return
-
-	for i in range(1, 7):
-		if top[i] == top[i+1] == top[i+2] + 1 and abs(top[i+2] + 2 - top[i+3]) < 3 and abs(top[i] + 1 - top[i-1]) < 3:
-			
-			top[i] += 1
-			top[i+1] += 1
-			top[i+2] += 2
-			
-			pyautogui.press('up', presses=2)
-			
-			if i < 3:
-				pyautogui.press('left', presses=3-i)
-			elif i > 3:
-				pyautogui.press('right', presses=i-3)
-
-			pyautogui.press('space')
-			return
-
-	if top[7] == top[8] == top[9] + 1 and abs(top[7] + 1 - top[6]) < 3:
-		top[7] += 1
-		top[8] += 1
-		top[9] += 2
-		
-		pyautogui.press('up', presses=2)
-		pyautogui.press('right', presses=4)
-		pyautogui.press('space')
-		return
-
-	# 3 rotations
-	if top[0] == top[1] and abs(top[1] + 3 - top[2]) < 3:
-		top[0] += 1
-		top[1] += 3
-		
-		pyautogui.press('up', presses=3)
-		pyautogui.press('left', presses=3)
-		pyautogui.press('space')
-		return
-
-	for i in range(1, 8):
-		if top[i] == top[i+1] and abs(top[i+1] + 3 - top[i+2]) < 3 and abs(top[i] + 1 - top[i-1]) < 3:
-
-			top[i] += 1
-			top[i+1] += 3
-
-			pyautogui.press('up', presses=3)
-
-			if i < 3:
-				pyautogui.press('left', presses=3-i)
-			elif i > 3:
-				pyautogui.press('right', presses=i-3)
-			
-			pyautogui.press('space')
-			return
-
-	if top[8] == top[9] and abs(top[8] + 1 - top[7]) < 3:
-		top[8] += 1
-		top[9] += 3
-		
-		pyautogui.press('up', presses=3)
-		pyautogui.press('right', presses=5)
-		pyautogui.press('space')
-		return
-
-	pyautogui.press('c')
-
-def placeOrangeL():
-
-	# 0 rotations
-	if top[0] == top[1] == top[2] and abs(top[2] + 2 - top[3]) < 3:
-		top[0] += 1
-		top[1] += 1
-		top[2] += 2
-		
-		pyautogui.press('left', presses=3)
-		pyautogui.press('space')
-		return
-
-	for i in range(1, 7):
-		if top[i] == top[i+1] == top[i+2] and abs(top[i+2] + 2 - top[i+3]) < 3 and abs(top[i] + 1 - top[i-1]) < 3:
-			if i < 3:
-				pyautogui.press('left', presses=3-i)
-			elif i > 3:
-				pyautogui.press('right', presses=i-3)
-
-			top[i] += 1
-			top[i+1] += 1
-			top[i+2] += 2
-
-			pyautogui.press('space')
-			return
-
-	if top[7] == top[8] == top[9] and abs(top[7] + 1 - top[6]) < 3:
-		top[7] += 1
-		top[8] += 1
-		top[9] += 2
-		
-		pyautogui.press('right', presses=4)
-		pyautogui.press('space')
-		return
-
-	# 1 rotation
-	if top[0] == top[1] and abs(top[1] + 1 - top[2]) < 3:
-		top[0] += 3
-		top[1] += 1
-		
-		pyautogui.press('up')
-		pyautogui.press('left', presses=4)
-		pyautogui.press('space')
-		return
-
-	for i in range(1, 8):
-		if top[i] == top[i+1] and abs(top[i] + 3 - top[i-1]) < 3 and abs(top[i+1] + 1 - top[i+2]) < 3:
-
-			top[i] += 3
-			top[i+1] += 1
-
-			pyautogui.press('up')
-
-			if i < 4:
-				pyautogui.press('left', presses=4-i)
-			elif i > 4:
-				pyautogui.press('right', presses=i-4)
-			
-			pyautogui.press('space')
-			return
-
-	if top[8] == top[9] and abs(top[8] + 3 - top[7]) < 3:
-		top[8] += 3
-		top[9] += 1
-		
-		pyautogui.press('up')
-		pyautogui.press('right', presses=4)
-		pyautogui.press('space')
-		return
-
-	# 2 rotations
-	if top[0] + 1 == top[1] == top[2] and abs(top[2] + 1 - top[3]) < 3:
-		top[0] += 2
-		top[1] += 1
-		top[2] += 1
-		
-		pyautogui.press('up', presses=2)
-		pyautogui.press('left', presses=3)
-		pyautogui.press('space')
-		return
-
-	for i in range(1, 7):
-		if top[i] + 1 == top[i+1] == top[i+2] and abs(top[i] + 2 - top[i-1]) < 3 and abs(top[i+2] + 1 - top[i+3]) < 3:
-			
-			top[i] += 2
-			top[i+1] += 1
-			top[i+2] += 1
-			
-			pyautogui.press('up', presses=2)
-			
-			if i < 3:
-				pyautogui.press('left', presses=3-i)
-			elif i > 3:
-				pyautogui.press('right', presses=i-3)
-
-			pyautogui.press('space')
-			return
-
-	if top[7] + 1 == top[8] == top[9] and abs(top[7] + 2 - top[6]) < 3:
-		top[7] += 2
-		top[8] += 1
-		top[9] += 1
-		
-		pyautogui.press('up', presses=2)
-		pyautogui.press('right', presses=4)
-		pyautogui.press('space')
-		return
-
-	# 3 rotations
-	if top[0] == top[1] + 2 and abs(top[1] + 3 - top[2]) < 3:
-		top[0] += 1
-		top[1] += 3
-		
-		pyautogui.press('up', presses=3)
-		pyautogui.press('left', presses=3)
-		pyautogui.press('space')
-		return
-
-	for i in range(1, 8):
-		if top[i] == top[i+1] + 2 and abs(top[i+1] + 3 - top[i+2]) < 3 and abs(top[i] + 1 - top[i-1]) < 3:
-
-			top[i] += 1
-			top[i+1] += 3
-
-			pyautogui.press('up', presses=3)
-
-			if i < 3:
-				pyautogui.press('left', presses=3-i)
-			elif i > 3:
-				pyautogui.press('right', presses=i-3)
-			
-			pyautogui.press('space')
-			return
-
-	if top[8] == top[9] + 2 and abs(top[8] + 1 - top[7]) < 3:
-		top[8] += 1
-		top[9] += 3
-		
-		pyautogui.press('up', presses=3)
-		pyautogui.press('right', presses=5)
-		pyautogui.press('space')
-		return
-
-	pyautogui.press('c')
-
-def placeT():
-
-	# 0 rotations
-	if top[0] == top[1] == top[2] and abs(top[2] + 1 - top[3]) < 3:
-		pyautogui.press('left', presses=3)
-		top[0] += 1
-		top[1] += 2
-		top[2] += 1
-
-		pyautogui.press('space')
-		return
+	moves0 = {}
+	if top[0] == top[1] == top[2]:
+		moves0[0] = (0, diff[2] - 1)
 	
 	for i in range(1, 7):
 		if top[i] == top[i+1] == top[i+2]:
-			if i < 3:
-				pyautogui.press('left', presses=3-i)
-			elif i > 3:
-				pyautogui.press('right', presses=i-3)
+			moves0[i] = (diff[i-1] + 2, diff[i+2] - 1)
+	
+	if top[7] == top[8] == top[9]:
+		moves0[7] = (diff[6] + 2, 0)
+	
+	# 1 rotation
+	moves1 = {}
+	if top[0] + 2 == top[1]:
+		moves1[0] = (0, diff[1] - 1)
+	
+	for i in range(1, 8):
+		if top[i] + 2 == top[i+1]:
+			moves1[i] = (diff[i-1] + 3, diff[i+1] - 1)
+	
+	if top[8] + 2 == top[9]:
+		moves1[8] = (diff[7] + 3, 0)
+	
+	# 2 rotations
+	moves2 = {}
+	if top[0] == top[1] == top[2] + 1:
+		moves2[0] = (0, diff[2] - 2)
+	
+	for i in range(1, 7):
+		if top[i] == top[i+1] == top[i+2] + 1:
+			moves2[i] = (diff[i-1] + 1, diff[i+2] - 2)
+	
+	if top[7] == top[8] == top[9] + 1:
+		moves2[7] = (diff[6] + 1, 0)
+	
+	# 3 rotations
+	moves3 = {}
+	if top[0] == top[1]:
+		moves3[0] = (0, diff[1] - 3)
+	
+	for i in range(1, 8):
+		if top[i] == top[i+1]:
+			moves3[i] = (diff[i-1] + 1, diff[i+1] - 3)
+	
+	if top[8] == top[9]:
+		moves3[8] = (diff[7] + 1, 0)
+	
+	# moves with no holes
+	moves_no_holes = [moves0, moves1, moves2, moves3]
+	
+	moves_no_3 = filterMoves(moves_no_holes)
+	
+	if moves_no_3 == -1: # c pressed
+		return
+	
+	# 0 rotations
+	moves0 = reduceMoves(moves_no_3[0], 3)
+	
+	# 1 rotation
+	moves1 = reduceMoves(moves_no_3[1], 2)
+	
+	# 2 rotations
+	moves2 = reduceMoves(moves_no_3[2], 3)
+	
+	# 3 rotations
+	moves3 = reduceMoves(moves_no_3[3], 2)
+	
+	moves_reducing = [moves0, moves1, moves2, moves3]
+	
+	increase = [[2,1,1,0], [3,1,0,0], [1,1,2,0], [1,3,0,0]]
+	if len(moves_no_3[0]) == 0 and len(moves_no_3[1]) == 0 and len(moves_no_3[2]) == 0 and len(moves_no_3[3]) == 0: # no moves create < 3 walls
+		if len(moves0) == 0 and len(moves1) == 0 and len(moves2) == 0 and len(moves3) == 0: # no walls can be reduced, choose the move that results in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_no_holes, increase)
+		else: # choose wall reduction that reults in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_reducing, increase)
+	else: # at least 1 move in moves_no_3
+		if len(moves0) == 0 and len(moves1) == 0 and len(moves2) == 0 and len(moves3) == 0: # no walls can be reduced, choose the move that results in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_no_3, increase)
+		else: # at least 1 move can reduce walls
+			best_move, rot = bestMove(moves_reducing, increase)
+	
+	if rot == 0: # 0 rotations
+		top[best_move] += 2
+		top[best_move+1] += 1
+		top[best_move+2] += 1
+		
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
+	elif rot == 1: # 1 rotation
+		top[best_move] += 3
+		top[best_move+1] += 1
+		
+		pyautogui.press('up')
+		if best_move < 4:
+			pyautogui.press('left', presses=4-best_move)
+		elif best_move > 4:
+			pyautogui.press('right', presses=best_move-4)
+		pyautogui.press('space')
+	elif rot == 2: # 2 rotations
+		top[best_move] += 1
+		top[best_move+1] += 1
+		top[best_move+2] += 2
+		
+		pyautogui.press('up', presses=2)
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
+	else: # 3 rotations
+		top[best_move] += 1
+		top[best_move+1] += 3
+		
+		pyautogui.press('up', presses=3)
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
 
-			top[i] += 1
-			top[i+1] += 2
-			top[i+2] += 1
+def placeOrangeL():
+	# 0 rotations
+	moves0 = {}
+	if top[0] == top[1] == top[2]:
+		moves0[0] = (0, diff[2] - 2)
+	
+	for i in range(1, 7):
+		if top[i] == top[i+1] == top[i+2]:
+			moves0[i] = (diff[i-1] + 1, diff[i+2] - 2)
+	
+	if top[7] == top[8] == top[9]:
+		moves0[7] = (diff[6] + 1, 0)
+	
+	# 1 rotation
+	moves1 = {}
+	if top[0] == top[1]:
+		moves1[0] = (0, diff[1] - 1)
+	
+	for i in range(1, 8):
+		if top[i] == top[i+1]:
+			moves1[i] = (diff[i-1] + 3, diff[i+1] - 1)
+	
+	if top[8] == top[9]:
+		moves1[8] = (diff[7] + 3, 0)
+	
+	# 2 rotations
+	moves2 = {}
+	if top[0] + 1 == top[1] == top[2]:
+		moves2[0] = (0, diff[2] - 1)
+	
+	for i in range(1, 7):
+		if top[i] + 1 == top[i+1] == top[i+2]:
+			moves2[i] = (diff[i-1] + 2, diff[i+2] - 1)
+	
+	if top[7] + 1 == top[8] == top[9]:
+		moves2[7] = (diff[6] + 2, 0)
+	
+	# 3 rotations
+	moves3 = {}
+	if top[0] == top[1] + 2:
+		moves3[0] = (0, diff[1] - 3)
+	
+	for i in range(1, 8):
+		if top[i] == top[i+1] + 2:
+			moves3[i] = (diff[i-1] + 1, diff[i+1] - 3)
+	
+	if top[8] == top[9] + 2:
+		moves3[8] = (diff[7] + 1, 0)
+	
+	# moves with no holes
+	moves_no_holes = [moves0, moves1, moves2, moves3]
+	
+	moves_no_3 = filterMoves(moves_no_holes)
+	
+	if moves_no_3 == -1: # c pressed
+		return
+	
+	# 0 rotations
+	moves0 = reduceMoves(moves_no_3[0], 3)
+	
+	# 1 rotation
+	moves1 = reduceMoves(moves_no_3[1], 2)
+	
+	# 2 rotations
+	moves2 = reduceMoves(moves_no_3[2], 3)
+	
+	# 3 rotations
+	moves3 = reduceMoves(moves_no_3[3], 2)
+	
+	moves_reducing = [moves0, moves1, moves2, moves3]
+	
+	increase = [[1,1,2,0], [3,1,0,0], [2,1,1,0], [1,3,0,0]]
+	if len(moves_no_3[0]) == 0 and len(moves_no_3[1]) == 0 and len(moves_no_3[2]) == 0 and len(moves_no_3[3]) == 0: # no moves create < 3 walls
+		if len(moves0) == 0 and len(moves1) == 0 and len(moves2) == 0 and len(moves3) == 0: # no walls can be reduced, choose the move that results in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_no_holes, increase)
+		else: # choose wall reduction that reults in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_reducing, increase)
+	else: # at least 1 move in moves_no_3
+		if len(moves0) == 0 and len(moves1) == 0 and len(moves2) == 0 and len(moves3) == 0: # no walls can be reduced, choose the move that results in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_no_3, increase)
+		else: # at least 1 move can reduce walls
+			best_move, rot = bestMove(moves_reducing, increase)
+	
+	if rot == 0: # 0 rotations
+		top[best_move] += 1
+		top[best_move+1] += 1
+		top[best_move+2] += 2
+		
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
+	elif rot == 1: # 1 rotation
+		top[best_move] += 3
+		top[best_move+1] += 1
+		
+		pyautogui.press('up')
+		if best_move < 4:
+			pyautogui.press('left', presses=4-best_move)
+		elif best_move > 4:
+			pyautogui.press('right', presses=best_move-4)
+		pyautogui.press('space')
+	elif rot == 2: # 2 rotations
+		top[best_move] += 2
+		top[best_move+1] += 1
+		top[best_move+2] += 1
+		
+		pyautogui.press('up', presses=2)
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
+	else: # 3 rotations
+		top[best_move] += 1
+		top[best_move+1] += 3
+		
+		pyautogui.press('up', presses=3)
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
 
-			pyautogui.press('space')
-			return
+def placeT():
+	# 0 rotations
+	moves0 = {}
+	if top[0] == top[1] == top[2]:
+		moves0[0] = (0, diff[2] - 1)
+	
+	for i in range(1, 7):
+		if top[i] == top[i+1] == top[i+2]:
+			moves0[i] = (diff[i-1] + 1, diff[i+2] - 1)
+	
+	if top[7] == top[8] == top[9]:
+		moves0[7] = (diff[6] + 1, 0)
+	
+	# 1 rotation
+	moves1 = {}
+	if top[0] + 1 == top[1]:
+		moves1[0] = (0, diff[1] - 1)
+	
+	for i in range(1, 8):
+		if top[i] + 1 == top[i+1]:
+			moves1[i] = (diff[i-1] + 3, diff[i+1] - 1)
+	
+	if top[8] + 1 == top[9]:
+		moves1[8] = (diff[7] + 3, 0)
+	
+	# 2 rotations
+	moves2 = {}
+	if top[0] == top[1] + 1 == top[2]:
+		moves2[0] = (0, diff[2] - 1)
+	
+	for i in range(1, 7):
+		if top[i] == top[i+1] + 1 == top[i+2]:
+			moves2[i] = (diff[i-1] + 1, diff[i+2] - 1)
+	
+	if top[7] == top[8] + 1 == top[9]:
+		moves2[7] = (diff[6] + 1, 0)
+	
+	# 3 rotations
+	moves3 = {}
+	if top[0] == top[1] + 1:
+		moves3[0] = (0, diff[1] - 3)
+	
+	for i in range(1, 8):
+		if top[i] == top[i+1] + 1:
+			moves3[i] = (diff[i-1] + 1, diff[i+1] - 3)
+	
+	if top[8] == top[9] + 1:
+		moves3[8] = (diff[7] + 1, 0)
+	
+	# moves with no holes
+	moves_no_holes = [moves0, moves1, moves2, moves3]
+	
+	moves_no_3 = filterMoves(moves_no_holes)
+	
+	if moves_no_3 == -1: # c pressed
+		return
+	
+	# 0 rotations
+	moves0 = reduceMoves(moves_no_3[0], 3)
+	
+	# 1 rotation
+	moves1 = reduceMoves(moves_no_3[1], 2)
+	
+	# 2 rotations
+	moves2 = reduceMoves(moves_no_3[2], 3)
+	
+	# 3 rotations
+	moves3 = reduceMoves(moves_no_3[3], 2)
+	
+	moves_reducing = [moves0, moves1, moves2, moves3]
+	
+	increase = [[1,2,1,0], [3,1,0,0], [1,2,1,0], [1,3,0,0]]
+	if len(moves_no_3[0]) == 0 and len(moves_no_3[1]) == 0 and len(moves_no_3[2]) == 0 and len(moves_no_3[3]) == 0: # no moves create < 3 walls
+		if len(moves0) == 0 and len(moves1) == 0 and len(moves2) == 0 and len(moves3) == 0: # no walls can be reduced, choose the move that results in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_no_holes, increase)
+		else: # choose wall reduction that reults in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_reducing, increase)
+	else: # at least 1 move in moves_no_3
+		if len(moves0) == 0 and len(moves1) == 0 and len(moves2) == 0 and len(moves3) == 0: # no walls can be reduced, choose the move that results in sum of diffs being closest to 0
+			best_move, rot = bestMove(moves_no_3, increase)
+		else: # at least 1 move can reduce walls
+			best_move, rot = bestMove(moves_reducing, increase)
+	
+	if rot == 0: # 0 rotations
+		top[best_move] += 1
+		top[best_move+1] += 2
+		top[best_move+2] += 1
+		
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
+	elif rot == 1: # 1 rotation
+		top[best_move] += 3
+		top[best_move+1] += 1
+		
+		pyautogui.press('up')
+		if best_move < 4:
+			pyautogui.press('left', presses=4-best_move)
+		elif best_move > 4:
+			pyautogui.press('right', presses=best_move-4)
+		pyautogui.press('space')
+	elif rot == 2: # 2 rotations
+		top[best_move] += 1
+		top[best_move+1] += 2
+		top[best_move+2] += 1
+		
+		pyautogui.press('up', presses=2)
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
+	else: # 3 rotations
+		top[best_move] += 1
+		top[best_move+1] += 3
+		
+		pyautogui.press('up', presses=3)
+		if best_move < 3:
+			pyautogui.press('left', presses=3-best_move)
+		elif best_move > 3:
+			pyautogui.press('right', presses=best_move-3)
+		pyautogui.press('space')
 
-	pyautogui.press('c')
-
-# Move format => moves<# rotations> = {column index : (left diff, right diff), ... }
 def placeGreenZ():
 	# 0 rotations
 	moves0 = {}
