@@ -2,7 +2,7 @@
 
 AI that plays Tetris through [jstris.jezevec10.com](https://jstris.jezevec10.com/)
 
-**Important: Do not run this script with any Python version 3.8.4 and up, this will enable a pyautogui bug**
+**Important: Do not run this script with any Python version 3.8.4 and up, this will enable a pyautogui bug.**
 
 **Disclaimer:** I do not condone cheating, this is a script made for learning purposes only, use it at your own risk. This script only works in Sprint (singleplayer) mode and won't work in Live (multiplayer) mode.
 
