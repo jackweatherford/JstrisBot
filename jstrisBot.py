@@ -18,7 +18,7 @@ def filterMoves(moves_no_holes):
 			pyautogui.press('c')
 			return -1
 		else:
-			print('Unlucky, all moves create holes')
+			# print('Unlucky, all moves create holes')
 			# TODO: Continue, make a hole + keep list of holes?
 			exit(1)
 	
@@ -773,28 +773,28 @@ def update(piece_color):
 	wait = True
 	
 	if piece_color == 155:
-		print('Placing Line')
+		# print('Placing Line')
 		placeLine()
 	elif piece_color == 159:
-		print('Placing Square')
+		# print('Placing Square')
 		placeSquare()
 	elif piece_color == 65:
-		print('Placing Blue L')
+		# print('Placing Blue L')
 		placeBlueL()
 	elif piece_color == 91:
-		print('Placing Orange L')
+		# print('Placing Orange L')
 		placeOrangeL()
 	elif piece_color == 41:
-		print('Placing T')
+		# print('Placing T')
 		placeT()
 	elif piece_color == 177:
-		print('Placing Green Z')
+		# print('Placing Green Z')
 		placeGreenZ()
 	elif piece_color == 15:
-		print('Placing Red Z')
+		# print('Placing Red Z')
 		placeRedZ()
 	
-	print(top)
+	# print(top)
 	# Update bottom
 	bottom = [y > 0 for y in top]
 	
@@ -813,7 +813,7 @@ def update(piece_color):
 def on_press(key):
 	if key == Key.space or key == Key.down or repr(key) == "'c'":
 		if repr(key) == "'c'":
-			print('Pressed C')
+			# print('Pressed C')
 			c_pressed = True
 		else:
 			c_pressed = False
@@ -833,6 +833,7 @@ if __name__ == '__main__':
 	listener.start()
 	
 	try:
+		print('Please enter a Jstris Sprint game')
 		# Wait for GO! message to appear
 		go_color = 0
 		while not go_color == 203:
