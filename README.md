@@ -6,7 +6,7 @@ AI that plays Tetris through [jstris.jezevec10.com](https://jstris.jezevec10.com
 
 **Disclaimer:** I do not condone cheating, this is a script made for learning purposes only, use it at your own risk. This script only works in Sprint (singleplayer) mode and won't work in Live (multiplayer) mode.
 
-Instructions:
+## Instructions:
 1. Clone this repository.
 2. Install the required Python modules:
 
