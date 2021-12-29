@@ -1,10 +1,18 @@
-from pyautogui import press, pixel, FailSafeException
+from pyautogui import press, pixel, FailSafeException, locateOnScreen
 from pynput.keyboard import Key, Listener
+
+# Support multiple monitors:
+# https://www.reddit.com/r/learnpython/comments/99fer7/pyautogui_with_multiple_monitors/e4neq6p/
+from PIL import ImageGrab
+from functools import partial
+ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 top = [0 for _ in range(10)]
 diff = [0 for _ in range(9)]
 wait = False
 c_pressed = False
+piece_x = 700
+piece_y = 185
 
 def filterMoves(moves_no_holes):
   press_c = True
@@ -820,9 +828,9 @@ def on_press(key):
     piece_color = 0
     while piece_color == 0 or wait:
       try:
-        piece_color = pixel(700, 185)[1]
+        piece_color = pixel(piece_x, piece_y)[1]
       except:
-        piece_color = pixel(700, 185)[1]
+        piece_color = pixel(piece_x, piece_y)[1]
 
     try:
       update(piece_color)
@@ -836,22 +844,25 @@ if __name__ == '__main__':
 
   try:
     print('Please enter a Jstris Sprint game')
-    print('Waiting for "GO!" message to appear')
-    go_color = 0
-    while not go_color == 203:
-      try:
-        go_color = pixel(710, 473)[0]
-      except:
-        go_color = pixel(710, 473)[0]
-    print('"GO!" message appeared')
+
+    print('Waiting for "READY" message to appear')
+
+    ready = False
+    while(not ready):
+      ready = locateOnScreen('./images/ready.png', grayscale=True, confidence=0.7)
+
+    print('"READY" message appeared')
+
+    piece_x = int(ready.left) - 1811
+
     print('Waiting for first piece to appear')
+
     first_piece_color = 0
     while first_piece_color == 0:
-      try:
-        first_piece_color = pixel(700, 185)[1]
-      except:
-        first_piece_color = pixel(700, 185)[1]
+      first_piece_color = pixel(piece_x, piece_y)[1]
+
     print('First piece appeared - bot running!')
+
     update(first_piece_color)
 
     # Keep the code alive and listening for space presses.
