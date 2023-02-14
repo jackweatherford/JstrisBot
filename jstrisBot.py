@@ -868,9 +868,8 @@ def main():
 
         exclamation = None
         while (not exclamation):
-            exclamation = locateOnScreen(
-                './images/exclamation.png', confidence=0.9) or locateOnScreen(
-                './images/exclamation2.png', confidence=0.9)
+            exclamation = locateOnScreen('./images/exclamation.png', confidence=0.75) or locateOnScreen(
+                './images/exclamation2.png', confidence=0.75) or locateOnScreen('./images/exclamation3.png', confidence=0.75)
 
         print('"GO!" message appeared')
 
