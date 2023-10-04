@@ -1,4 +1,4 @@
-PyAutoGUI==0.9.53
-pynput==1.7.5
-Pillow==8.4.0
-opencv-python==4.5.5.62
+PyAutoGUI
+pynput
+Pillow
+opencv-python
